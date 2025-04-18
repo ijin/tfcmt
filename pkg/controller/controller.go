@@ -148,8 +148,39 @@ func (c *Controller) getNotifier(ctx context.Context) (notifier.Notifier, error)
 		if err != nil {
 			return nil, err
 		}
-		return client.Notify, nil
+
+		if c.Config.Terraform.Plan.DisableLabel || c.Config.CI.PRNumber <= 0 {
+			return client.Notify, nil
+		}
+
+		a, err := c.renderGitHubLabels()
+		if err != nil {
+			return nil, err
+		}
+		labels = a
+
+		ghClient, err := github.NewClient(ctx, &github.Config{
+			BaseURL:         c.Config.GHEBaseURL,
+			GraphQLEndpoint: c.Config.GHEGraphQLEndpoint,
+			Owner:           c.Config.CI.Owner,
+			Repo:            c.Config.CI.Repo,
+			PR: github.PullRequest{
+				Revision: c.Config.CI.SHA,
+				Number:   c.Config.CI.PRNumber,
+			},
+			ResultLabels:    labels,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		return &composite.FileAndLabelNotifier{
+			FileNotifier:  client.Notify,
+			Parser:        c.Parser,
+			GitHubLabeler: &composite.GithubLabeler{Client: ghClient, ResultLabels: labels},
+		}, nil
 	}
+
 	client, err := github.NewClient(ctx, &github.Config{
 		BaseURL:         c.Config.GHEBaseURL,
 		GraphQLEndpoint: c.Config.GHEGraphQLEndpoint,
