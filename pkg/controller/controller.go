@@ -133,6 +133,18 @@ func (c *Controller) getNotifier(ctx context.Context) (notifier.Notifier, error)
 	}
 	// Write output to file instead of github comment
 	if c.Config.Output != "" {
+		var githubLabelConfig *localfile.GitHubLabelConfig
+		if !c.Config.Terraform.Plan.DisableLabel {
+			githubLabelConfig = &localfile.GitHubLabelConfig{
+				BaseURL:         c.Config.GHEBaseURL,
+				GraphQLEndpoint: c.Config.GHEGraphQLEndpoint,
+				Owner:           c.Config.CI.Owner,
+				Repo:            c.Config.CI.Repo,
+				PRNumber:        c.Config.CI.PRNumber,
+				Revision:        c.Config.CI.SHA,
+				Labels:          labels,
+			}
+		}
 		client, err := localfile.NewClient(&localfile.Config{
 			OutputFile:         c.Config.Output,
 			Parser:             c.Parser,
@@ -145,15 +157,7 @@ func (c *Controller) getNotifier(ctx context.Context) (notifier.Notifier, error)
 			Templates:          c.Config.Templates,
 			Masks:              c.Config.Masks,
 			DisableLabel:       c.Config.Terraform.Plan.DisableLabel,
-			GitHubLabelConfig: &localfile.GitHubLabelConfig{
-				BaseURL:         c.Config.GHEBaseURL,
-				GraphQLEndpoint: c.Config.GHEGraphQLEndpoint,
-				Owner:           c.Config.CI.Owner,
-				Repo:            c.Config.CI.Repo,
-				PRNumber:        c.Config.CI.PRNumber,
-				Revision:        c.Config.CI.SHA,
-				Labels:          labels,
-			},
+			GitHubLabelConfig: githubLabelConfig,
 		})
 		if err != nil {
 			return nil, err

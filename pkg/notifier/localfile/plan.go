@@ -68,9 +68,9 @@ func (g *NotifyService) Plan(ctx context.Context, param *notifier.ParamExec) err
 		return fmt.Errorf("write a plan output to a file: %w", err)
 	}
 
-	logE.Debugf("Label update check: OutputFile=%s DisableLabel=%v GitHubLabelConfig=%+v", cfg.OutputFile, cfg.DisableLabel, cfg.GitHubLabelConfig)
+	logE.Debugf("Update Labels: OutputFile=%s DisableLabel=%v GitHubLabelConfig=%+v", cfg.OutputFile, cfg.DisableLabel, cfg.GitHubLabelConfig)
 	if cfg.OutputFile != "" && !cfg.DisableLabel && cfg.GitHubLabelConfig != nil {
-		errMsgs := UpdateLabelsOnlyWithGitHubConfig(ctx, cfg.GitHubLabelConfig, result)
+		errMsgs := UpdateGitHubLabels(ctx, cfg.GitHubLabelConfig, result)
 		for _, msg := range errMsgs {
 			logE.Error(msg)
 		}

@@ -36,8 +36,6 @@ type Config struct {
 	GitHubLabelConfig *GitHubLabelConfig
 }
 
-// GitHubLabelConfig holds minimal info for label update
-// (You may want to expand this as needed)
 type GitHubLabelConfig struct {
 	BaseURL         string
 	GraphQLEndpoint string
@@ -45,7 +43,7 @@ type GitHubLabelConfig struct {
 	Repo            string
 	PRNumber        int
 	Revision        string
-	Labels          interface{} // pass whatever is needed for label logic
+	Labels          interface{}
 }
 
 type service struct {

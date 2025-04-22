@@ -7,8 +7,8 @@ import (
 	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/terraform"
 )
 
-// UpdateLabelsOnlyWithGitHubConfig creates a minimal github.NotifyService and updates labels only.
-func UpdateLabelsOnlyWithGitHubConfig(ctx context.Context, cfg *GitHubLabelConfig, result terraform.ParseResult) []string {
+// creates a minimal github.NotifyService and updates labels only.
+func UpdateGitHubLabels(ctx context.Context, cfg *GitHubLabelConfig, result terraform.ParseResult) []string {
 	if cfg == nil {
 		return []string{"GitHubLabelConfig is nil"}
 	}
