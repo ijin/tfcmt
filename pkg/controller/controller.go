@@ -144,6 +144,16 @@ func (c *Controller) getNotifier(ctx context.Context) (notifier.Notifier, error)
 			EmbeddedVarNames:   c.Config.EmbeddedVarNames,
 			Templates:          c.Config.Templates,
 			Masks:              c.Config.Masks,
+			DisableLabel:       c.Config.Terraform.Plan.DisableLabel,
+			GitHubLabelConfig: &localfile.GitHubLabelConfig{
+				BaseURL:         c.Config.GHEBaseURL,
+				GraphQLEndpoint: c.Config.GHEGraphQLEndpoint,
+				Owner:           c.Config.CI.Owner,
+				Repo:            c.Config.CI.Repo,
+				PRNumber:        c.Config.CI.PRNumber,
+				Revision:        c.Config.CI.SHA,
+				Labels:          labels,
+			},
 		})
 		if err != nil {
 			return nil, err

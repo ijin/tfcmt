@@ -11,7 +11,7 @@ import (
 )
 
 // Plan posts comment optimized for notifications
-func (g *NotifyService) Plan(_ context.Context, param *notifier.ParamExec) error {
+func (g *NotifyService) Plan(ctx context.Context, param *notifier.ParamExec) error {
 	cfg := g.client.Config
 	parser := g.client.Config.Parser
 	template := g.client.Config.Template
@@ -67,5 +67,15 @@ func (g *NotifyService) Plan(_ context.Context, param *notifier.ParamExec) error
 	if err := g.client.Output.WriteToFile(body, cfg.OutputFile); err != nil {
 		return fmt.Errorf("write a plan output to a file: %w", err)
 	}
+
+	logE.Debugf("Label update check: OutputFile=%s DisableLabel=%v GitHubLabelConfig=%+v", cfg.OutputFile, cfg.DisableLabel, cfg.GitHubLabelConfig)
+	if cfg.OutputFile != "" && !cfg.DisableLabel && cfg.GitHubLabelConfig != nil {
+		errMsgs := UpdateLabelsOnlyWithGitHubConfig(ctx, cfg.GitHubLabelConfig, result)
+		for _, msg := range errMsgs {
+			logE.Error(msg)
+		}
+	}
+	// -------------------------------------------------------------------------------
+
 	return nil
 }
